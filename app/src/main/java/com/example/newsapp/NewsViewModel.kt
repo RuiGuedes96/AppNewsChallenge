@@ -6,9 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class NewsViewModel : ViewModel() {
+class NewsViewModel(
+    private val api: NewsApiService = RetrofitInstance.api,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
     var articles by mutableStateOf<List<Article>>(emptyList())
 
     var isLoading by mutableStateOf(true)
@@ -18,9 +23,9 @@ class NewsViewModel : ViewModel() {
     }
 
     fun fetchNews() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
-                val response = RetrofitInstance.api.getTopHeadlines(
+                val response = api.getTopHeadlines(
                     "us",
                     "e89ff91542b14b1999068ec81b225771"
                 )
